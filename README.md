@@ -7,6 +7,7 @@ FMP มีข้อมูล 4 ปีย้อนหลัง
 StockAnalysis มีข้อมูล 5 ปีย้อนหลัง บางหุ้นมีถึงข้อมูลปัจจุบัน
   วิธีใช้งาน Run financial_statement.py กรอก ticker Symbol ที่ต้องการ เช่น NYSE, NASDAQ, TSLA
   จะได้ 4 Dir โดยจะมี Income, Balance, CashFlow, Ratio
+  ข้อมูลตัวเลขทุกตัวอยู่ในหน่วย Millions / ยกเว้นจุดทศนิยมจะเป็นรูปแบบ % ถูกแปลงเป็น float
   ข้อมูลเป็นรูปแบบ long format ปรับปรุง date เรียบร้อยแล้ว มีควา่มรวดเร็วในการ Scrap ข้อมูลมาก
 
 
