@@ -84,6 +84,8 @@ GET http://<your-ip>:8000/symbol=ptt/income/
 - If data is unavailable on the target site, an empty list or error message is returned.
 - Dates are formatted as `YYYY-MM-DD`.
 - The scraper relies on the current HTML structure of StockAnalysis.com, which may change.
+- Values without decimal points are in millions.
+- Values with decimals are those that were previously converted to percentages and then converted to float.
 
 ## 🙋 Author
 
