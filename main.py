@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+import io
 
 app = FastAPI()
 
@@ -31,7 +32,7 @@ def fetch_financial_data(ticker: str):
         try:
             response = requests.get(url.format(ticker=ticker), headers=headers)
             soup = BeautifulSoup(response.content, 'html.parser')
-            tables = pd.read_html(str(soup), attrs={'data-test': 'financials'})
+            tables = pd.read_html(io.StringIO(str(soup)))
 
             if not tables:
                 result[statement_type] = []
@@ -84,14 +85,14 @@ def fetch_financial_data(ticker: str):
 
     return result
 
-@app.get("/symbol={symbol}/income/")
+@app.get("/{symbol}/income/")
 def get_income_statement(symbol: str):
     return JSONResponse(content={"Income Statement": fetch_financial_data(symbol).get("Income Statement", [])})
 
-@app.get("/symbol={symbol}/cashflow/")
+@app.get("/{symbol}/cashflow/")
 def get_cashflow(symbol: str):
     return JSONResponse(content={"Cash Flow Statement": fetch_financial_data(symbol).get("Cash Flow Statement", [])})
 
-@app.get("/symbol={symbol}/balancesheet/")
+@app.get("/{symbol}/balancesheet/")
 def get_balance_sheet(symbol: str):
     return JSONResponse(content={"Balance Sheet Statement": fetch_financial_data(symbol).get("Balance Sheet Statement", [])})
