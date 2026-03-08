@@ -49,16 +49,16 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 | Endpoint | Description |
 |----------|-------------|
-| `/symbol={symbol}/income/`       | Get Income Statement |
-| `/symbol={symbol}/balancesheet/` | Get Balance Sheet Statement |
-| `/symbol={symbol}/cashflow/`     | Get Cash Flow Statement |
+| `/{symbol}/income/`       | Get Income Statement |
+| `/{symbol}/balancesheet/` | Get Balance Sheet Statement |
+| `/{symbol}/cashflow/`     | Get Cash Flow Statement |
 
 ### Example:
 
 ```
-GET http://localhost:8000/symbol=ptt/income/
+GET http://localhost:8000/ptt/income/
 OR
-GET http://<your-ip>:8000/symbol=ptt/income/
+GET http://<your-ip>:8000/ptt/income/
 ```
 
 ## 📤 Sample Response (JSON)
