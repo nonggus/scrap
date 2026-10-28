@@ -10,7 +10,7 @@ app = FastAPI()
 
 # URLs ของงบการเงิน
 urls = {
-    'Income Statement': 'https://stockanalysis.com/quote/bkk/{ticker}/financials/',
+    'Income Statement': 'https://stockanalysis.com/quote/bkk/{ticker}/financials/income-statement/',
     'Balance Sheet Statement': 'https://stockanalysis.com/quote/bkk/{ticker}/financials/balance-sheet/',
     'Cash Flow Statement': 'https://stockanalysis.com/quote/bkk/{ticker}/financials/cash-flow-statement/',
 }
@@ -24,6 +24,7 @@ headers = {
     'Upgrade-Insecure-Requests': '1',
     'Cache-Control': 'max-age=0'
 }
+
 
 def fetch_financial_data(ticker: str):
     result = {}
@@ -61,21 +62,35 @@ def fetch_financial_data(ticker: str):
             df_long.insert(0, 'symbol', ticker.upper())
 
             df_long['item'] = df_long['item'].str.strip().str.lower()
+
+            # เก็บเครื่องหมาย % และคงสเกลตัวเลขตามต้นทาง
             df_long['value'] = (
                 df_long['value']
                 .astype(str)
                 .str.replace(',', '', regex=False)
-                .str.replace('%', '', regex=False)
                 .str.replace('—', '', regex=False)
                 .str.replace('N/A', '', regex=False)
                 .str.replace('nan', '', regex=False)
                 .str.strip()
             )
-            df_long['value'] = pd.to_numeric(df_long['value'], errors='coerce')
+
+            # ค่า % เก็บเป็นข้อความ ส่วนค่าอื่นแปลงเป็นตัวเลข
+            # รองรับค่าติดลบแบบ (1,250) -> -1250
+            df_long['value'] = df_long['value'].apply(
+                lambda value: value
+                if '%' in value
+                else pd.to_numeric(
+                    '-' + value[1:-1]
+                    if value.startswith('(') and value.endswith(')')
+                    else value,
+                    errors='coerce'
+                )
+            )
+
             df_long = df_long.dropna(subset=['date', 'value'])
             df_long = df_long.drop_duplicates()
 
-            #  แปลงวันที่ให้อยู่ในรูปแบบ string (JSON-compatible)
+            # แปลงวันที่ให้อยู่ในรูปแบบ string (JSON-compatible)
             df_long['date'] = df_long['date'].dt.strftime('%Y-%m-%d')
 
             result[statement_type] = df_long.to_dict(orient='records')
@@ -85,13 +100,16 @@ def fetch_financial_data(ticker: str):
 
     return result
 
+
 @app.get("/{symbol}/income/")
 def get_income_statement(symbol: str):
     return JSONResponse(content={"Income Statement": fetch_financial_data(symbol).get("Income Statement", [])})
 
+
 @app.get("/{symbol}/cashflow/")
 def get_cashflow(symbol: str):
     return JSONResponse(content={"Cash Flow Statement": fetch_financial_data(symbol).get("Cash Flow Statement", [])})
+
 
 @app.get("/{symbol}/balancesheet/")
 def get_balance_sheet(symbol: str):
